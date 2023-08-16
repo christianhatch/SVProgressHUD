@@ -61,7 +61,7 @@
         CALayer *maskLayer = [CALayer layer];
 
         NSString *path = [SWIFTPM_MODULE_BUNDLE pathForResource:@"angle-mask" ofType:@"png"];
-        
+
         maskLayer.contents = (__bridge id)[[UIImage imageWithContentsOfFile:path] CGImage];
         maskLayer.frame = _indefiniteAnimatedLayer.bounds;
         _indefiniteAnimatedLayer.mask = maskLayer;
