@@ -60,7 +60,14 @@
         
         CALayer *maskLayer = [CALayer layer];
 
-        NSString *path = [SWIFTPM_MODULE_BUNDLE pathForResource:@"angle-mask" ofType:@"png"];
+        #ifdef SWIFTPM_MODULE_BUNDLE
+        NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
+        #else
+        NSBundle *bundle = [NSBundle bundleForClass:[SVProgressHUD class]];
+        #endif
+        NSURL *url = [bundle URLForResource:@"SVProgressHUD" withExtension:@"bundle"];
+        NSBundle *imageBundle = [NSBundle bundleWithURL:url];
+        NSString *path = [imageBundle pathForResource:@"angle-mask" ofType:@"png"];
 
         maskLayer.contents = (__bridge id)[[UIImage imageWithContentsOfFile:path] CGImage];
         maskLayer.frame = _indefiniteAnimatedLayer.bounds;
