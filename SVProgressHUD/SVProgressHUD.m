@@ -10,9 +10,6 @@
 #endif
 
 #import "SVProgressHUD.h"
-#import "SVIndefiniteAnimatedView.h"
-#import "SVProgressAnimatedView.h"
-#import "SVRadialGradientLayer.h"
 
 NSString * const SVProgressHUDDidReceiveTouchEventNotification = @"SVProgressHUDDidReceiveTouchEventNotification";
 NSString * const SVProgressHUDDidTouchDownInsideNotification = @"SVProgressHUDDidTouchDownInsideNotification";
@@ -414,10 +411,18 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
         
         _imageViewSize = CGSizeMake(28.0f, 28.0f);
         _shouldTintImages = YES;
-                
-        _infoImage = [UIImage imageWithContentsOfFile:[SWIFTPM_MODULE_BUNDLE pathForResource:@"info" ofType:@"png"]];
-        _successImage = [UIImage imageWithContentsOfFile:[SWIFTPM_MODULE_BUNDLE pathForResource:@"success" ofType:@"png"]];
-        _errorImage = [UIImage imageWithContentsOfFile:[SWIFTPM_MODULE_BUNDLE pathForResource:@"error" ofType:@"png"]];
+
+        #ifdef SWIFTPM_MODULE_BUNDLE
+        NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
+        #else
+        NSBundle *bundle = [NSBundle bundleForClass:[SVProgressHUD class]];
+        #endif
+        NSURL *url = [bundle URLForResource:@"SVProgressHUD" withExtension:@"bundle"];
+        NSBundle *imageBundle = [NSBundle bundleWithURL:url];
+
+        _infoImage = [UIImage imageWithContentsOfFile:[imageBundle pathForResource:@"info" ofType:@"png"]];
+        _successImage = [UIImage imageWithContentsOfFile:[imageBundle pathForResource:@"success" ofType:@"png"]];
+        _errorImage = [UIImage imageWithContentsOfFile:[imageBundle pathForResource:@"error" ofType:@"png"]];
 
         _ringThickness = 2.0f;
         _ringRadius = 18.0f;

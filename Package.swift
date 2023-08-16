@@ -17,6 +17,9 @@ let package = Package(
         .target(
             name: "SVProgressHUD",
             dependencies: [],
-            path: "SVProgressHUD"),
+            path: "SVProgressHUD",
+            resources: [
+                .copy("SVProgressHUD.bundle"),
+            ]),
     ]
 )
