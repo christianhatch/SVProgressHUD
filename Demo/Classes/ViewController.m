@@ -8,10 +8,11 @@
 #import "ViewController.h"
 #import "SVProgressHUD.h"
 
-@interface ViewController()
+@interface ViewController() <UITextFieldDelegate>
 
 @property (nonatomic, readwrite) NSUInteger activityCount;
 @property (weak, nonatomic) IBOutlet UIButton *popActivityButton;
+@property (weak, nonatomic) IBOutlet UITextField *textfield;
 
 @end
 
@@ -181,6 +182,11 @@ static float progress = 0.0f;
         unsigned long activityCount = [[change objectForKey:NSKeyValueChangeNewKey] unsignedLongValue];
         [self.popActivityButton setTitle:[NSString stringWithFormat:@"popActivity - %lu", activityCount] forState:UIControlStateNormal];
     }
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    [textField resignFirstResponder];
+    return YES;
 }
 
 @end

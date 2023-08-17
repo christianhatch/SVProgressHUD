@@ -653,9 +653,14 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 
 #if !defined(SV_APP_EXTENSIONS) && TARGET_OS_IOS
     self.frame = [[[UIApplication sharedApplication] delegate] window].bounds;
-    UIInterfaceOrientation orientation = UIApplication.sharedApplication.statusBarOrientation;
+
+    UIInterfaceOrientation orientation = UIInterfaceOrientationUnknown;
+    UIWindowScene *keyWindowScene = [self keyWindowScene];
+    if (keyWindowScene != nil) {
+        orientation = keyWindowScene.interfaceOrientation;
+    }
 #elif !defined(SV_APP_EXTENSIONS) && !TARGET_OS_IOS
-    self.frame= [UIApplication sharedApplication].keyWindow.bounds;
+    self.frame = [UIApplication sharedApplication].keyWindow.bounds;
 #else
     if (self.viewForExtension) {
         self.frame = self.viewForExtension.frame;
@@ -666,7 +671,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     UIInterfaceOrientation orientation = CGRectGetWidth(self.frame) > CGRectGetHeight(self.frame) ? UIInterfaceOrientationLandscapeLeft : UIInterfaceOrientationPortrait;
 #endif
 #endif
-    
+
 #if TARGET_OS_IOS
     // Get keyboardHeight in regard to current state
     if(notification) {
@@ -689,12 +694,12 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
     // Get the currently active frame of the display (depends on orientation)
     CGRect orientationFrame = self.bounds;
 
-#if !defined(SV_APP_EXTENSIONS) && TARGET_OS_IOS
-    CGRect statusBarFrame = UIApplication.sharedApplication.statusBarFrame;
-#else
     CGRect statusBarFrame = CGRectZero;
+#if !defined(SV_APP_EXTENSIONS) && TARGET_OS_IOS
+    if (keyWindowScene != nil) {
+        statusBarFrame = keyWindowScene.statusBarManager.statusBarFrame;
+    }
 #endif
-    
     if (_motionEffectEnabled) {
 #if TARGET_OS_IOS
         // Update the motion effects in regard to orientation
@@ -1036,10 +1041,12 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
                     
                     // Tell the rootViewController to update the StatusBar appearance
 #if !defined(SV_APP_EXTENSIONS) && TARGET_OS_IOS
-                    UIViewController *rootController = [[UIApplication sharedApplication] keyWindow].rootViewController;
-                    [rootController setNeedsStatusBarAppearanceUpdate];
+                    UIWindow *keyWindow = [self keyWindow];
+                    if (keyWindow != nil) {
+                        UIViewController *rootController = [self keyWindow].rootViewController;
+                        [rootController setNeedsStatusBarAppearanceUpdate];
+                    }
 #endif
-                    
                     // Run an (optional) completionHandler
                     if (completion) {
                         completion();
@@ -1109,7 +1116,7 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
         }
         
         if(!_indefiniteAnimatedView){
-            _indefiniteAnimatedView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+            _indefiniteAnimatedView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
         }
         
         // Update styling
@@ -1387,7 +1394,28 @@ static const CGFloat SVProgressHUDLabelSpacing = 8.0f;
 #endif
     return nil;
 }
-    
+
+- (UIWindow *)keyWindow {
+    UIWindow *keyWindow = nil;
+    // Find the key window
+    for (UIWindow *window in [UIApplication sharedApplication].windows) {
+        if (window.isKeyWindow) {
+            keyWindow = window;
+            break;
+        }
+    }
+    return keyWindow;
+}
+
+- (UIWindowScene *)keyWindowScene {
+    UIWindow *keyWindow = [self keyWindow];
+    // Make sure key window is available
+    if (keyWindow == nil) {
+        return nil;
+    }
+    return keyWindow.windowScene;
+}
+
 - (void)fadeInEffects {
     if(self.defaultStyle != SVProgressHUDStyleCustom) {
         // Add blur effect
